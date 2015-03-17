@@ -497,32 +497,31 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd, 
 			goto inval;
 
 		if (uref->report_id == HID_REPORT_ID_UNKNOWN) {
-			field = hiddev_lookup_usage(hid, uref);
-			if (field == NULL)
-				goto inval;
+			    field = hiddev_lookup_usage(hid, uref);
+			    if (field == NULL)
+				        goto inval;
 		} else {
-			rinfo.report_type = uref->report_type;
-			rinfo.report_id = uref->report_id;
-			if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
-				goto inval;
+			    rinfo.report_type = uref->report_type;
+			    rinfo.report_id = uref->report_id;
+			    if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
+				        goto inval;
 
-			if (uref->field_index >= report->maxfield)
-				goto inval;
+			    if (uref->field_index >= report->maxfield)
+				        goto inval;
 
-			field = report->field[uref->field_index];
+			    field = report->field[uref->field_index];
+
+		        if (cmd == HIDIOCGCOLLECTIONINDEX) {
+			            if (uref->usage_index >= field->maxusage)
+				                goto inval;
+		        } else if (uref->usage_index >= field->report_count)
+				        goto inval;
 		}
 
-		if (cmd == HIDIOCGCOLLECTIONINDEX) {
-			if (uref->usage_index >= field->maxusage)
-				goto inval;
-		} else if (uref->usage_index >= field->report_count)
-			goto inval;
-
-		else if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
-			 (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
-			uref->usage_index + uref_multi->num_values >
-			field->report_count))
-			goto inval;
+	    if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
+		    (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
+		     uref->usage_index + uref_multi->num_values > field->report_count))
+			    goto inval;
 
 		switch (cmd) {
 		case HIDIOCGUSAGE:
